@@ -59,18 +59,20 @@ int main() {
 
   // aufgabe 3
 
-  // EncoderCounter counterLeft(PD_12, PD_13); // encoder counter für links
-  // EncoderCounter counterRight(PB_4, PC_7); // encoder counter für rechts
+  // erzeugen der endcoder treiber instanzen
+  EncoderCounter counterLeft(PD_12, PD_13); // encoder counter für links
+  EncoderCounter counterRight(PB_4, PC_7);  // encoder counter für rechts
 
   // erzeugen einer controller instanz
-  // Controller controller(pwmLeft, pwmRight, counterLeft, counterRight);
+  Controller controller(pwmLeft, pwmRight, counterLeft, counterRight);
 
-  // controller.setDesiredSpeedLeft(50.0); // Drehzahl in [rpm]
-  // controller.setDesiredSpeedRight(50.0);
+  controller.setDesiredSpeedLeft(10.0); // Drehzahl in [rpm]
+  controller.setDesiredSpeedRight(10.0);
 
   // ---------- LAB 02 code END
   enable = 1;            // schaltet die Sensoren ein
   enableMotorDriver = 1; // Schaltet den Leistungstreiber ein
+
   while (true) {
 
     // wenn sensor 0 weniger als 20cm ist, schalte led 0 ein
