@@ -10,6 +10,7 @@ int main() {
 
   printf("start program");
 
+  // ---------- LAB 01 code
   DigitalOut led0(PD_4);
   DigitalOut led1(PD_3);
   DigitalOut led2(PD_6);
@@ -30,21 +31,17 @@ int main() {
   IRSensor irSensor4(distance, bit0, bit1, bit2, 4);
   IRSensor irSensor5(distance, bit0, bit1, bit2, 5);
 
+  // ---------- LAB 01 code END
+
+  // ---------- LAB 02 code
+  // aufgabe 2
+
   DigitalOut enableMotorDriver(PG_0); // ein/ausschalten der motorentreiber
   DigitalIn motorDriverFault(PD_1);   // input für fehler der leistungstreiber
   DigitalIn motorDriverWarning(
       PD_0);             // input für temperaturwarnung der leistungstreiber
   PwmOut pwmLeft(PF_9);  // duty cycle für linker motor
   PwmOut pwmRight(PF_8); // duty cycle für rechter motor
-
-  // lab 2 aufgabe 3
-  // EncoderCounter counterLeft(PD_12, PD_13); // encoder counter für links
-  // EncoderCounter counterRight(PB_4, PC_7); // encoder counter für rechts
-
-    // erzeugen einer controller instanz
-  // Controller controller(pwmLeft, pwmRight, counterLeft, counterRight);
-
-  enable = 1; // schaltet die Sensoren ein
 
   // Setzt die Periode auf 50 μs
   pwmLeft.period(0.00005);
@@ -54,9 +51,19 @@ int main() {
   pwmLeft = 0.5;
   pwmRight = 0.5;
 
+  // aufgabe 3
+
+  // EncoderCounter counterLeft(PD_12, PD_13); // encoder counter für links
+  // EncoderCounter counterRight(PB_4, PC_7); // encoder counter für rechts
+
+  // erzeugen einer controller instanz
+  // Controller controller(pwmLeft, pwmRight, counterLeft, counterRight);
+
   // controller.setDesiredSpeedLeft(50.0); // Drehzahl in [rpm]
   // controller.setDesiredSpeedRight(50.0);
 
+  // ---------- LAB 02 code END
+  enable = 1;            // schaltet die Sensoren ein
   enableMotorDriver = 1; // Schaltet den Leistungstreiber ein
   while (true) {
 
