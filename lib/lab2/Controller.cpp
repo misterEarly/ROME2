@@ -15,7 +15,7 @@ const float Controller::COUNTS_PER_TURN =
 const float Controller::LOWPASS_FILTER_FREQUENCY = 300.0f; // given in [rad/s]
 const float Controller::KN = 40.0f; // speed constant in [rpm/V] (pololu
                                     // motors: 40.0f, maxon motors: 45.0f)
-const float Controller::KP = 0.01f; // speed control parameter
+const float Controller::KP = 0.25f; // speed control parameter
 const float Controller::MAX_VOLTAGE = 12.0f;    // battery voltage in [V]
 const float Controller::MIN_DUTY_CYCLE = 0.02f; // minimum duty-cycle
 const float Controller::MAX_DUTY_CYCLE = 0.98f; // maximum duty-cycle
@@ -151,3 +151,6 @@ void Controller::run() {
     pwmRight = dutyCycleRight;
   }
 }
+
+float Controller::getActualSpeedRight() { return actualSpeedRight; }
+float Controller::getActualSpeedLeft() { return actualSpeedLeft; }

@@ -66,8 +66,8 @@ int main() {
   // erzeugen einer controller instanz
   Controller controller(pwmLeft, pwmRight, counterLeft, counterRight);
 
-  controller.setDesiredSpeedLeft(10.0); // Drehzahl in [rpm]
-  controller.setDesiredSpeedRight(10.0);
+  controller.setDesiredSpeedLeft(50.0); // Drehzahl in [rpm]
+  controller.setDesiredSpeedRight(50.0);
 
   // ---------- LAB 02 code END
   enable = 1;            // schaltet die Sensoren ein
@@ -82,5 +82,7 @@ int main() {
     led3 = (irSensor3.read() < 0.2);
     led4 = (irSensor4.read() < 0.2);
     led5 = (irSensor5.read() < 0.2);
+    printf("actual speed (left/right: %.3f / %.3f [rpm]\r\n",
+           controller.getActualSpeedLeft(), controller.getActualSpeedRight());
   }
 }
