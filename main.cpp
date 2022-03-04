@@ -29,12 +29,13 @@ int main() {
   IRSensor irSensor3(distance, bit0, bit1, bit2, 3);
   IRSensor irSensor4(distance, bit0, bit1, bit2, 4);
   IRSensor irSensor5(distance, bit0, bit1, bit2, 5);
+
   enable = 1; // schaltet die Sensoren ein
 
   while (true) {
-
-    led0 = (irSensor0.read() <
-            0.2); // wenn sensor 0 weniger als 20cm ist, schalte led 0 ein
+      
+    // wenn sensor 0 weniger als 20cm ist, schalte led 0 ein
+    led0 = (irSensor0.read() < 0.2);
     led1 = (irSensor1.read() < 0.2);
     led2 = (irSensor2.read() < 0.2);
     led3 = (irSensor3.read() < 0.2);
