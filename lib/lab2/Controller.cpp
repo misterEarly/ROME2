@@ -8,14 +8,17 @@
 
 using namespace std;
 
-const float Controller::PERIOD = 0.001f;                    // period of control task, given in [s]
-const float Controller::COUNTS_PER_TURN = 1200.0f;          // encoder resolution (pololu motors: 1200.0f, maxon motors: 86016.0f)
-const float Controller::LOWPASS_FILTER_FREQUENCY = 300.0f;  // given in [rad/s]
-const float Controller::KN = 40.0f;                         // speed constant in [rpm/V] (pololu motors: 40.0f, maxon motors: 45.0f)
-const float Controller::KP = 0.01f;                         // speed control parameter
-const float Controller::MAX_VOLTAGE = 12.0f;                // battery voltage in [V]
-const float Controller::MIN_DUTY_CYCLE = 0.02f;             // minimum duty-cycle
-const float Controller::MAX_DUTY_CYCLE = 0.98f;             // maximum duty-cycle
+const float Controller::PERIOD = 0.001f; // period of control task, given in [s]
+const float Controller::COUNTS_PER_TURN =
+    1200.0f; // encoder resolution (pololu motors: 1200.0f, maxon motors:
+             // 86016.0f)
+const float Controller::LOWPASS_FILTER_FREQUENCY = 300.0f; // given in [rad/s]
+const float Controller::KN = 40.0f; // speed constant in [rpm/V] (pololu
+                                    // motors: 40.0f, maxon motors: 45.0f)
+const float Controller::KP = 0.01f; // speed control parameter
+const float Controller::MAX_VOLTAGE = 12.0f;    // battery voltage in [V]
+const float Controller::MIN_DUTY_CYCLE = 0.02f; // minimum duty-cycle
+const float Controller::MAX_DUTY_CYCLE = 0.98f; // maximum duty-cycle
 
 /**
  * Creates and initialises the robot controller.
@@ -24,45 +27,49 @@ const float Controller::MAX_DUTY_CYCLE = 0.98f;             // maximum duty-cycl
  * @param counterLeft a reference to the encoder counter of the left motor.
  * @param counterRight a reference to the encoder counter of the right motor.
  */
-Controller::Controller(PwmOut& pwmLeft, PwmOut& pwmRight, EncoderCounter& counterLeft, EncoderCounter& counterRight) : pwmLeft(pwmLeft), pwmRight(pwmRight), counterLeft(counterLeft), counterRight(counterRight), thread(osPriorityHigh, STACK_SIZE) {
-    
-    // initialise pwm outputs
+Controller::Controller(PwmOut &pwmLeft, PwmOut &pwmRight,
+                       EncoderCounter &counterLeft,
+                       EncoderCounter &counterRight)
+    : pwmLeft(pwmLeft), pwmRight(pwmRight), counterLeft(counterLeft),
+      counterRight(counterRight), thread(osPriorityHigh, STACK_SIZE) {
 
-    pwmLeft.period(0.00005f);  // pwm period of 50 us
-    pwmLeft = 0.5f;            // duty-cycle of 50%
+  // initialise pwm outputs
 
-    pwmRight.period(0.00005f); // pwm period of 50 us
-    pwmRight = 0.5f;           // duty-cycle of 50%
+  pwmLeft.period(0.00005f); // pwm period of 50 us
+  pwmLeft = 0.5f;           // duty-cycle of 50%
 
-    // initialise local variables
+  pwmRight.period(0.00005f); // pwm period of 50 us
+  pwmRight = 0.5f;           // duty-cycle of 50%
 
-    previousValueCounterLeft = counterLeft.read();
-    previousValueCounterRight = counterRight.read();
+  // initialise local variables
 
-    speedLeftFilter.setPeriod(PERIOD);
-    speedLeftFilter.setFrequency(LOWPASS_FILTER_FREQUENCY);
+  previousValueCounterLeft = counterLeft.read();
+  previousValueCounterRight = counterRight.read();
 
-    speedRightFilter.setPeriod(PERIOD);
-    speedRightFilter.setFrequency(LOWPASS_FILTER_FREQUENCY);
+  speedLeftFilter.setPeriod(PERIOD);
+  speedLeftFilter.setFrequency(LOWPASS_FILTER_FREQUENCY);
 
-    desiredSpeedLeft = 0.0f;
-    desiredSpeedRight = 0.0f;
+  speedRightFilter.setPeriod(PERIOD);
+  speedRightFilter.setFrequency(LOWPASS_FILTER_FREQUENCY);
 
-    actualSpeedLeft = 0.0f;
-    actualSpeedRight = 0.0f;
-    
-    // start thread and timer interrupt
-    
-    thread.start(callback(this, &Controller::run));
-    ticker.attach(callback(this, &Controller::sendThreadFlag), PERIOD);
+  desiredSpeedLeft = 0.0f;
+  desiredSpeedRight = 0.0f;
+
+  actualSpeedLeft = 0.0f;
+  actualSpeedRight = 0.0f;
+
+  // start thread and timer interrupt
+
+  thread.start(callback(this, &Controller::run));
+  ticker.attach(callback(this, &Controller::sendThreadFlag), PERIOD);
 }
 
 /**
  * Deletes this Controller object.
  */
 Controller::~Controller() {
-    
-    ticker.detach(); // stop the timer interrupt
+
+  ticker.detach(); // stop the timer interrupt
 }
 
 /**
@@ -71,7 +78,7 @@ Controller::~Controller() {
  */
 void Controller::setDesiredSpeedLeft(float desiredSpeedLeft) {
 
-    this->desiredSpeedLeft = desiredSpeedLeft;
+  this->desiredSpeedLeft = desiredSpeedLeft;
 }
 
 /**
@@ -80,60 +87,67 @@ void Controller::setDesiredSpeedLeft(float desiredSpeedLeft) {
  */
 void Controller::setDesiredSpeedRight(float desiredSpeedRight) {
 
-    this->desiredSpeedRight = desiredSpeedRight;
+  this->desiredSpeedRight = desiredSpeedRight;
 }
 
 /**
  * This method is called by the ticker timer interrupt service routine.
  * It sends a flag to the thread to make it run again.
  */
-void Controller::sendThreadFlag() {
-    
-    thread.flags_set(threadFlag);
-}
+void Controller::sendThreadFlag() { thread.flags_set(threadFlag); }
 
 /**
  * This is an internal method of the controller that is running periodically.
  */
 void Controller::run() {
 
-    while (true) {
-        
-        // wait for the periodic thread flag
-        
-        ThisThread::flags_wait_any(threadFlag);
-        
-        // calculate the actual speed of the motors in [rpm]
+  while (true) {
 
-        short valueCounterLeft = counterLeft.read();
-        short valueCounterRight = counterRight.read();
+    // wait for the periodic thread flag
 
-        short countsInPastPeriodLeft = valueCounterLeft-previousValueCounterLeft;
-        short countsInPastPeriodRight = valueCounterRight-previousValueCounterRight;
+    ThisThread::flags_wait_any(threadFlag);
 
-        previousValueCounterLeft = valueCounterLeft;
-        previousValueCounterRight = valueCounterRight;
+    // calculate the actual speed of the motors in [rpm]
 
-        actualSpeedLeft = speedLeftFilter.filter((float)countsInPastPeriodLeft/COUNTS_PER_TURN/PERIOD*60.0f);
-        actualSpeedRight = speedRightFilter.filter((float)countsInPastPeriodRight/COUNTS_PER_TURN/PERIOD*60.0f);
+    short valueCounterLeft = counterLeft.read();
+    short valueCounterRight = counterRight.read();
 
-        // calculate desired motor voltages Uout
+    short countsInPastPeriodLeft = valueCounterLeft - previousValueCounterLeft;
+    short countsInPastPeriodRight =
+        valueCounterRight - previousValueCounterRight;
 
-        // bitte implementieren!
-        
-        //float voltageLeft = ...
-        //float voltageRight = ...
+    previousValueCounterLeft = valueCounterLeft;
+    previousValueCounterRight = valueCounterRight;
 
-        // calculate, limit and set the duty-cycle
+    actualSpeedLeft = speedLeftFilter.filter((float)countsInPastPeriodLeft /
+                                             COUNTS_PER_TURN / PERIOD * 60.0f);
+    actualSpeedRight = speedRightFilter.filter(
+        (float)countsInPastPeriodRight / COUNTS_PER_TURN / PERIOD * 60.0f);
+    // bitte implementieren!
+    // calculate desired motor voltages Uout
 
-        float dutyCycleLeft = 0.5f+0.5f*voltageLeft/MAX_VOLTAGE;
-        if (dutyCycleLeft < MIN_DUTY_CYCLE) dutyCycleLeft = MIN_DUTY_CYCLE;
-        else if (dutyCycleLeft > MAX_DUTY_CYCLE) dutyCycleLeft = MAX_DUTY_CYCLE;
-        pwmLeft = dutyCycleLeft;
+    // kp ist regelparameter
+    // kn ist drehzahkonstante der motoren
 
-        float dutyCycleRight = 0.5f+0.5f*voltageRight/MAX_VOLTAGE;
-        if (dutyCycleRight < MIN_DUTY_CYCLE) dutyCycleRight = MIN_DUTY_CYCLE;
-        else if (dutyCycleRight > MAX_DUTY_CYCLE) dutyCycleRight = MAX_DUTY_CYCLE;
-        pwmRight = dutyCycleRight;
-    }
+    float voltageLeft =
+        KP * (desiredSpeedLeft - actualSpeedLeft) + desiredSpeedLeft / KN;
+    float voltageRight =
+        KP * (desiredSpeedRight - actualSpeedRight) + desiredSpeedRight / KN;
+
+    // calculate, limit and set the duty-cycle
+
+    float dutyCycleLeft = 0.5f + 0.5f * voltageLeft / MAX_VOLTAGE;
+    if (dutyCycleLeft < MIN_DUTY_CYCLE)
+      dutyCycleLeft = MIN_DUTY_CYCLE;
+    else if (dutyCycleLeft > MAX_DUTY_CYCLE)
+      dutyCycleLeft = MAX_DUTY_CYCLE;
+    pwmLeft = dutyCycleLeft;
+
+    float dutyCycleRight = 0.5f + 0.5f * voltageRight / MAX_VOLTAGE;
+    if (dutyCycleRight < MIN_DUTY_CYCLE)
+      dutyCycleRight = MIN_DUTY_CYCLE;
+    else if (dutyCycleRight > MAX_DUTY_CYCLE)
+      dutyCycleRight = MAX_DUTY_CYCLE;
+    pwmRight = dutyCycleRight;
+  }
 }
