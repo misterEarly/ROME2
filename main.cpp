@@ -53,6 +53,7 @@ int main() {
   pwmRight.period(0.00005);
 
   // Setzt die Duty-Cycle auf 50%
+  // 50% bedeutet stillstand, 0% rückwärts 100% vorwärts
   pwmLeft = 0.5;
   pwmRight = 0.5;
 
