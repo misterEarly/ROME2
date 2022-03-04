@@ -3,8 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "IRSensor.h" // include class to easily read ir sensors
+// lab 1: einführung und ausprobieren der IR sensoren
+// lab 2: einführung von motoren und implementieren eines einfachen reglers
+
 #include "mbed.h"
+
+#include "Controller.h" // include class to control motor speeds
+#include "IRSensor.h"   // include class to easily read ir sensors
 
 int main() {
 
