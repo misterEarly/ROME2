@@ -17,7 +17,7 @@ const float Controller::WHEEL_RADIUS =
 const float Controller::MAXIMUM_VELOCITY =
     500.0; // maximum wheel velocity, given in [rpm]
 const float Controller::MAXIMUM_ACCELERATION =
-    200.0; // maximum wheel acceleration, given in [rpm/s]
+    20.0; // maximum wheel acceleration, given in [rpm/s]
 const float Controller::COUNTS_PER_TURN =
     86016.0f; // encoder resolution (pololu motors: 1200.0f, maxon motors:
               // 86016.0f)
@@ -172,8 +172,11 @@ void Controller::run() {
 
     // bitte implementieren!
 
-    // desiredSpeedLeft = ...
-    // desiredSpeedRight = ...
+    motionLeft.incrementToVelocity(desiredSpeedLeft, 0.001f);
+    motionRight.incrementToVelocity(desiredSpeedRight, 0.001f);
+
+    desiredSpeedLeft = motionLeft.getVelocity();
+    desiredSpeedRight = motionRight.getVelocity();
 
     // calculate the actual speed of the motors in [rpm]
 

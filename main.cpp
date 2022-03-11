@@ -7,6 +7,7 @@
 #include "Controller.h"
 #include "EncoderCounter.h"
 #include "IRSensor.h"
+#include <cstdint>
 #include <mbed.h>
 #include <stdio.h>
 
@@ -58,13 +59,14 @@ int main() {
 
   Controller controller(pwmLeft, pwmRight, counterLeft, counterRight);
 
-  controller.setTranslationalVelocity(0.0f);
-  controller.setRotationalVelocity(0.5f);
+  controller.setTranslationalVelocity(0.1f);
+  controller.setRotationalVelocity(0.0f);
+
+  uint8_t i = 0;
 
   printf("start loop");
 
   while (true) {
-
     led = !led;
 
     led0 = irSensor0 < 0.2f;
@@ -74,6 +76,14 @@ int main() {
     led4 = irSensor4 < 0.2f;
     led5 = irSensor5 < 0.2f;
 
+    i++;
+    if (i >= 20) {
+      controller.setTranslationalVelocity(0.1f);
+    }
+    if (i >= 40) {
+      controller.setTranslationalVelocity(-0.1f);
+      i = 0;
+    }
     // baud 9600
     printf("actual velocity: %.3f [m/s] / %.3f [rad/s]\r\n",
            controller.getActualTranslationalVelocity(),
