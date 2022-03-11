@@ -19,10 +19,10 @@ const float Controller::MAXIMUM_VELOCITY =
 const float Controller::MAXIMUM_ACCELERATION =
     200.0; // maximum wheel acceleration, given in [rpm/s]
 const float Controller::COUNTS_PER_TURN =
-    1200.0f; // encoder resolution (pololu motors: 1200.0f, maxon motors:
-             // 86016.0f)
+    86016.0f; // encoder resolution (pololu motors: 1200.0f, maxon motors:
+              // 86016.0f)
 const float Controller::LOWPASS_FILTER_FREQUENCY = 300.0f; // given in [rad/s]
-const float Controller::KN = 40.0f; // speed constant in [rpm/V] (pololu
+const float Controller::KN = 45.0f; // speed constant in [rpm/V] (pololu
                                     // motors: 40.0f, maxon motors: 45.0f)
 const float Controller::KP = 0.15f; // speed control parameter
 const float Controller::MAX_VOLTAGE = 12.0f;    // battery voltage in [V]
@@ -160,12 +160,12 @@ void Controller::run() {
     // rechte seite mal -1, da das rad umgekehrt montiert ist
 
     desiredSpeedLeft =
-        (translationalVelocity - rotationalVelocity * WHEEL_DISTANCE / 2) * 60/ (WHEEL_RADIUS * 2 * M_PI);
-        
+        (translationalVelocity - rotationalVelocity * WHEEL_DISTANCE / 2) * 60 /
+        (WHEEL_RADIUS * 2 * M_PI);
+
     desiredSpeedRight =
-        (translationalVelocity + rotationalVelocity * WHEEL_DISTANCE / 2) * 60 * -1/ (WHEEL_RADIUS * 2 * M_PI);
-    
-    
+        (translationalVelocity + rotationalVelocity * WHEEL_DISTANCE / 2) * 60 *
+        -1 / (WHEEL_RADIUS * 2 * M_PI);
 
     // calculate planned speed left and speed right values using the motion
     // planner
