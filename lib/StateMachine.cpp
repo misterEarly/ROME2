@@ -131,10 +131,11 @@ void StateMachine::run() {
         controller.setRotationalVelocity(0.0f);
 
         // wait until robot has stopped
-        if (controller.getActualTranslationalVelocity() <= 0) {
+        if (controller.getActualTranslationalVelocity() <= VELOCITY_THRESHOLD) {
 
           // check left sensor for distance
-          if (irSensor2 < DISTANCE_THRESHOLD) {
+          if (irSensor2 < DISTANCE_THRESHOLD ||
+              irSensor3 < DISTANCE_THRESHOLD) {
             state = TURN_RIGHT;
           }
 
@@ -149,7 +150,7 @@ void StateMachine::run() {
 
     case TURN_LEFT:
       controller.setTranslationalVelocity(0.0f);
-      controller.setRotationalVelocity(0.1f);
+      controller.setRotationalVelocity(ROTATIONAL_VELOCITY);
 
       buttonNow = button;
       // detect button rising edge, to start slowing down
@@ -176,7 +177,7 @@ void StateMachine::run() {
 
     case TURN_RIGHT:
       controller.setTranslationalVelocity(0.0f);
-      controller.setRotationalVelocity(-0.1f);
+      controller.setRotationalVelocity(-ROTATIONAL_VELOCITY);
 
       buttonNow = button;
       // detect button rising edge, to start slowing down
@@ -204,7 +205,7 @@ void StateMachine::run() {
     case SLOWING_DOWN:
 
       // wait until robot has stopped, then go to turn it off
-      if (controller.getActualTranslationalVelocity() <= 0) {
+      if (controller.getActualTranslationalVelocity() <= VELOCITY_THRESHOLD) {
         state = ROBOT_OFF;
       }
 
