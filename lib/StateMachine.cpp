@@ -11,11 +11,11 @@ using namespace std;
 
 const float StateMachine::PERIOD = 0.01f; // period of task, given in [s]
 const float StateMachine::DISTANCE_THRESHOLD =
-    0.2f; // minimum allowed distance to obstacle in [m]
+    0.26f; // minimum allowed distance to obstacle in [m]
 const float StateMachine::TRANSLATIONAL_VELOCITY =
-    0.1f; // translational velocity in [m/s]
+    1.5f; // translational velocity in [m/s]
 const float StateMachine::ROTATIONAL_VELOCITY =
-    0.3f; // rotational velocity in [rad/s]
+    9.0f; // rotational velocity in [rad/s]
 const float StateMachine::VELOCITY_THRESHOLD =
     0.01; // velocity threshold before switching off, in [m/s] and [rad/s]
 
@@ -170,14 +170,16 @@ void StateMachine::run() {
 
         controller.setTranslationalVelocity(0.0f);
         controller.setRotationalVelocity(0.0f);
-        state = MOVE_FORWARD;
+        if (controller.getActualRotationalVelocity() < VELOCITY_THRESHOLD) {
+          state = MOVE_FORWARD;
+        }
       }
 
       break;
 
     case TURN_RIGHT:
       controller.setTranslationalVelocity(0.0f);
-      controller.setRotationalVelocity(-ROTATIONAL_VELOCITY);
+      controller.setRotationalVelocity(-1 * ROTATIONAL_VELOCITY);
 
       buttonNow = button;
       // detect button rising edge, to start slowing down
@@ -193,11 +195,13 @@ void StateMachine::run() {
       buttonBefore = buttonNow;
 
       // if sensor is free again, stop rotation and start moving
-      if (irSensor2 > DISTANCE_THRESHOLD) {
+      if (irSensor2 > DISTANCE_THRESHOLD && irSensor3 > DISTANCE_THRESHOLD) {
 
         controller.setTranslationalVelocity(0.0f);
         controller.setRotationalVelocity(0.0f);
-        state = MOVE_FORWARD;
+        if (controller.getActualRotationalVelocity() < VELOCITY_THRESHOLD) {
+          state = MOVE_FORWARD;
+        }
       }
 
       break;
