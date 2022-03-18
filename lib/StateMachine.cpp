@@ -13,9 +13,9 @@ const float StateMachine::PERIOD = 0.01f; // period of task, given in [s]
 const float StateMachine::DISTANCE_THRESHOLD =
     0.2f; // minimum allowed distance to obstacle in [m]
 const float StateMachine::TRANSLATIONAL_VELOCITY =
-    0.3f; // translational velocity in [m/s]
+    0.1f; // translational velocity in [m/s]
 const float StateMachine::ROTATIONAL_VELOCITY =
-    1.0f; // rotational velocity in [rad/s]
+    0.3f; // rotational velocity in [rad/s]
 const float StateMachine::VELOCITY_THRESHOLD =
     0.01; // velocity threshold before switching off, in [m/s] and [rad/s]
 
@@ -137,7 +137,7 @@ void StateMachine::run() {
           if (irSensor0 < DISTANCE_THRESHOLD) {
             state = TURN_RIGHT;
           }
-          
+
           // check right sensor for distance
           else if (irSensor2 < DISTANCE_THRESHOLD) {
             state = TURN_LEFT;
@@ -164,7 +164,7 @@ void StateMachine::run() {
 
       buttonBefore = buttonNow;
 
-// if sensor is free again, stop rotation and start moving
+      // if sensor is free again, stop rotation and start moving
       if (irSensor2 > DISTANCE_THRESHOLD) {
 
         controller.setTranslationalVelocity(0.0f);
