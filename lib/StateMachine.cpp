@@ -125,8 +125,8 @@ void StateMachine::run() {
 
       // check infrared sensors for distance, to stop robot before crashing, and
       // then turn
-      if (irSensor0 < DISTANCE_THRESHOLD || irSensor1 < DISTANCE_THRESHOLD ||
-          irSensor2 < DISTANCE_THRESHOLD) {
+      if (irSensor2 < DISTANCE_THRESHOLD || irSensor3 < DISTANCE_THRESHOLD ||
+          irSensor4 < DISTANCE_THRESHOLD) {
         controller.setTranslationalVelocity(0.0f);
         controller.setRotationalVelocity(0.0f);
 
@@ -134,12 +134,12 @@ void StateMachine::run() {
         if (controller.getActualTranslationalVelocity() <= 0) {
 
           // check left sensor for distance
-          if (irSensor0 < DISTANCE_THRESHOLD) {
+          if (irSensor2 < DISTANCE_THRESHOLD) {
             state = TURN_RIGHT;
           }
 
           // check right sensor for distance
-          else if (irSensor2 < DISTANCE_THRESHOLD) {
+          else if (irSensor4 < DISTANCE_THRESHOLD) {
             state = TURN_LEFT;
           }
         }
@@ -165,7 +165,7 @@ void StateMachine::run() {
       buttonBefore = buttonNow;
 
       // if sensor is free again, stop rotation and start moving
-      if (irSensor2 > DISTANCE_THRESHOLD) {
+      if (irSensor4 > DISTANCE_THRESHOLD) {
 
         controller.setTranslationalVelocity(0.0f);
         controller.setRotationalVelocity(0.0f);
@@ -192,7 +192,7 @@ void StateMachine::run() {
       buttonBefore = buttonNow;
 
       // if sensor is free again, stop rotation and start moving
-      if (irSensor0 > DISTANCE_THRESHOLD) {
+      if (irSensor2 > DISTANCE_THRESHOLD) {
 
         controller.setTranslationalVelocity(0.0f);
         controller.setRotationalVelocity(0.0f);

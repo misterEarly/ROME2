@@ -68,7 +68,7 @@ int main() {
     printf("actual velocity: %.3f [m/s] / %.3f [rad/s]\r\n",
            controller.getActualTranslationalVelocity(),
            controller.getActualRotationalVelocity());
-    printf("State: %d", stateMachine.getState());
+    printf("State: %d ", stateMachine.getState());
 
     ThisThread::sleep_for(100ms);
   }
