@@ -40,6 +40,12 @@ class TaskMoveTo : public Task {
         float       alpha;          // target orientation, given in [rad]
         float       velocity;       // maximum translational velocity, given in [m/s]
         float       zone;           // zone threshold around target position, given in [m]
+        float xrob;
+        float yrob;
+        float arob;
+        float rho;
+        float gamma;
+        float delta;
 };
 
 #endif /* TASK_MOVE_TO_H_ */
