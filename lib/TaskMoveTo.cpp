@@ -87,29 +87,35 @@ TaskMoveTo::~TaskMoveTo() {}
 int TaskMoveTo::run(float period) {
 
   // bitte implementieren!
-
+// get robot position
   xrob = controller.getX();
   yrob = controller.getY();
   arob = controller.getAlpha();
 
+//   calculate rho ( distance)
+
   rho = sqrt(pow((x - xrob), 2) + pow((y - yrob), 2));
 
+// if rho is in the zone, end the task
   if (rho <= zone) {
     controller.setTranslationalVelocity(0);
     controller.setRotationalVelocity(0);
     return DONE;
   }
 
+// calculate gamma ( angle to vector pointing at target)
   gamma = atan2(y - yrob, x - xrob) - arob;
-
+ // check that gamma is between -pi and pi
   if (gamma < -M_PI) {
     gamma += 2 * M_PI;
   }
   if (gamma > M_PI) {
     gamma -= 2 * M_PI;
   }
-
+// calculate delta ( angle between target vecotr and target angle)
   delta = gamma - arob - alpha;
+
+ // check that delta is between -pi and pi
 
   if (delta < -M_PI) {
     delta += 2 * M_PI;
@@ -118,8 +124,11 @@ int TaskMoveTo::run(float period) {
     delta -= 2 * M_PI;
   }
 
+  // calculate desired velocity
+
   float v = K1 * rho * cos(gamma);
 
+// saturate velocity
   if (v > velocity) {
     controller.setTranslationalVelocity(velocity);
   } else if (v < -velocity) {
@@ -128,6 +137,9 @@ int TaskMoveTo::run(float period) {
     controller.setTranslationalVelocity(v);
   }
 
+  // calculate rotational velocity
+  // check for small (0) gamma because of division by 0
+
   if (gamma < 0.001) {
     controller.setRotationalVelocity(0);
   } else {
@@ -135,6 +147,8 @@ int TaskMoveTo::run(float period) {
                                                       (gamma + K3 * delta) /
                                                       gamma);
   }
+
+  
 
   return RUNNING;
 }
