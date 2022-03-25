@@ -102,7 +102,7 @@ int TaskMoveTo::run(float period) {
 
   gamma = atan2(y - yrob, x - xrob) - arob;
 
-  if (gamma < M_PI * -1) {
+  if (gamma < -M_PI) {
     gamma += 2 * M_PI;
   }
   if (gamma > M_PI) {
@@ -111,20 +111,26 @@ int TaskMoveTo::run(float period) {
 
   delta = gamma - arob - alpha;
 
-  if (delta < M_PI * -1) {
+  if (delta < -M_PI) {
     delta += 2 * M_PI;
   }
   if (delta > M_PI) {
     delta -= 2 * M_PI;
   }
 
-  controller.setTranslationalVelocity(K1 * rho * cos(gamma));
+  float v = K1 * rho * cos(gamma);
+
+  if (v > velocity) {
+    controller.setTranslationalVelocity(velocity);
+  } else if (v < -velocity) {
+    controller.setTranslationalVelocity(-velocity);
+  } else {
+    controller.setTranslationalVelocity(v);
+  }
 
   if (gamma < 0.001) {
     controller.setRotationalVelocity(0);
-
   } else {
-
     controller.setRotationalVelocity(K2 * gamma + K1 * sin(gamma) * cos(gamma) *
                                                       (gamma + K3 * delta) /
                                                       gamma);
